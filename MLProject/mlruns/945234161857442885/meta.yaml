@@ -1,6 +1,0 @@
-artifact_location: file:////home/runner/work/MLOps-Project-AuliaHalimatusyaddiah/MLOps-Project-AuliaHalimatusyaddiah/MLProject/mlruns/945234161857442885
-creation_time: 1762000042936
-experiment_id: '945234161857442885'
-last_update_time: 1762000042936
-lifecycle_stage: active
-name: Experiment_XGBoost_Baseline
