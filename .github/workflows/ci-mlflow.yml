@@ -7,45 +7,56 @@ jobs:
   mlflow_retrain:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    steps:
-      - name: Set up job
-        run: echo "Starting MLflow retraining pipeline..."
 
-      - name: Checkout repository
+    steps:
+      - name: Run actions/checkout@v3
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Set up Python 3.12.7
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: 3.12.7
 
       - name: Check Env
-        run: python --version
+        run: |
+          python --version
+          pip --version
+          echo "Current directory: $(pwd)"
+          ls -R
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install mlflow xgboost scikit-learn pandas
+          pip install --upgrade pip
+          pip install mlflow xgboost scikit-learn pandas numpy joblib
 
       - name: Set MLflow Tracking URI
-        run: echo "MLflow tracking set to local file storage"
-
-      - name: Run MLflow training script
         run: |
-          cd MLProject
-          python modelling.py
+          mkdir -p mlruns
+          echo "MLFLOW_TRACKING_URI=file://$(pwd)/mlruns" >> $GITHUB_ENV
+          echo "MLflow tracking directory created at $(pwd)/mlruns"
 
+      - name: Run mlflow project
+        run: |
+          echo "Starting MLflow retraining..."
+          python MLProject/modelling.py
 
-      - name: Upload to GitHub Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: mlflow-artifacts
-          path: |
-            MLProject/mlruns/
-            MLProject/model_boosting/
-            **/*.pkl
-            **/*.json
-            **/*.csv
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt || echo "No requirements.txt found"
+
+      - name: Upload to GitHub
+        run: |
+          echo "Committing MLflow artifacts and model back to repo..."
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # tambahkan folder hasil run dan model ke commit
+          git add mlruns MLProject/model_xgboost.pkl || true
+          git commit -m "Auto update MLflow artifacts and retrained model [skip ci]" || echo "No changes to commit"
+          git push origin main || echo "Nothing to push"
 
       - name: Complete job
-        run: echo "MLflow retraining pipeline completed successfully!"
+        run: echo "MLflow retraining pipeline finished successfully."
