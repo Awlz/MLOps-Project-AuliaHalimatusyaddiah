@@ -1,0 +1,22 @@
+artifact_path: file:///D:/SMSML_AuliaHalimatusyaddiah/mlruns/365232844287284354/models/m-43569bf865834c759f795595ab81e1ea/artifacts
+flavors:
+  python_function:
+    data: model.xgb
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.xgboost
+    python_version: 3.10.11
+  xgboost:
+    code: null
+    data: model.xgb
+    model_class: xgboost.sklearn.XGBClassifier
+    model_format: xgb
+    xgb_version: 3.0.0
+mlflow_version: 3.5.1
+model_id: m-43569bf865834c759f795595ab81e1ea
+model_size_bytes: 483220
+model_uuid: m-43569bf865834c759f795595ab81e1ea
+prompts: null
+run_id: 41f2c724b2484ae4b0f980c12e087117
+utc_time_created: '2025-11-01 05:52:45.598168'
