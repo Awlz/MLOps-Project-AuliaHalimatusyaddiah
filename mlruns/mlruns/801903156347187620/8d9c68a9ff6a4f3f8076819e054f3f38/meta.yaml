@@ -1,0 +1,14 @@
+artifact_uri: file:////home/runner/work/MLOps-Project-AuliaHalimatusyaddiah/MLOps-Project-AuliaHalimatusyaddiah/MLProject/mlruns/801903156347187620/8d9c68a9ff6a4f3f8076819e054f3f38/artifacts
+end_time: 1762000659660
+entry_point_name: ''
+experiment_id: '801903156347187620'
+lifecycle_stage: active
+run_id: 8d9c68a9ff6a4f3f8076819e054f3f38
+run_name: XGBoost_Baseline
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1762000655624
+status: 3
+tags: []
+user_id: runner

@@ -1,0 +1,10 @@
+artifact_location: file:////home/runner/work/MLOps-Project-AuliaHalimatusyaddiah/MLOps-Project-AuliaHalimatusyaddiah/MLProject/mlruns/801903156347187620/models/m-3dbf8c727f1c4b018466c533b9695716/artifacts
+creation_timestamp: 1762000656511
+experiment_id: '801903156347187620'
+last_updated_timestamp: 1762000659648
+model_id: m-3dbf8c727f1c4b018466c533b9695716
+model_type: null
+name: model_boosting
+source_run_id: 8d9c68a9ff6a4f3f8076819e054f3f38
+status: 2
+status_message: null
