@@ -6,6 +6,9 @@ on:
 permissions:
   contents: write   
 
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 jobs:
   mlflow_retrain:
     runs-on: ubuntu-latest
@@ -64,7 +67,10 @@ jobs:
           git commit -m "Auto update MLflow artifacts and retrained model [skip ci]" || echo "No changes to commit"
 
           # push ke branch main
-          git push origin main
+          git push origin HEAD:main
+
+          env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Complete job
         run: echo "MLflow retraining pipeline finished successfully."
