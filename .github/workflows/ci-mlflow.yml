@@ -6,6 +6,7 @@ on:
 jobs:
   mlflow_retrain:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Set up job
         run: echo "Starting MLflow retraining pipeline..."
