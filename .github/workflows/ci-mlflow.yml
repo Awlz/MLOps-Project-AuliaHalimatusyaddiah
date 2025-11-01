@@ -15,7 +15,7 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      - name: Run actions/checkout@v3
+      - name: Checkout repository
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -50,6 +50,7 @@ jobs:
           python MLProject/modelling.py
 
       - name: Upload to GitHub
+        if: success()
         run: |
           echo "=== Commit and push MLflow artifacts ==="
           git config --global user.name "github-actions[bot]"
@@ -68,8 +69,7 @@ jobs:
 
           # push ke branch main
           git push origin HEAD:main
-
-          env:
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Complete job
