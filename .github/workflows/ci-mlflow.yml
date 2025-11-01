@@ -4,53 +4,45 @@ on:
   workflow_dispatch:
 
 jobs:
-  retrain:
+  mlflow_retrain:
     runs-on: ubuntu-latest
-
     steps:
+      - name: Set up job
+        run: echo "Starting MLflow retraining pipeline..."
 
-      - name: Run actions/checkout@v3
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-
       - name: Set up Python 3.12.7
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.12.7"
-
+          python-version: 3.12.7
 
       - name: Check Env
-        run: |
-          python --version
-          pip --version
-          echo "Current directory:"
-          pwd
-          echo "Repository contents:"
-          ls -R
-
+        run: python --version
 
       - name: Install dependencies
         run: |
-          pip install --upgrade pip
-          pip install mlflow xgboost scikit-learn pandas numpy
-
+          python -m pip install --upgrade pip
+          pip install mlflow xgboost scikit-learn pandas
 
       - name: Set MLflow Tracking URI
-        run: |
-          mkdir -p MLProject/mlruns
-          echo "MLflow tracking URI is local (file storage)."
+        run: echo "MLflow tracking set to local file storage"
 
+      - name: Run MLflow Project
+        working-directory: ./MLProject
+        run: mlflow run . -e main
 
-      - name: Run mlflow project
-        run: |
-          mlflow run MLProject --no-conda
-
-
-      - name: Upload to GitHub
+      - name: Upload to GitHub Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: mlflow-artifacts
           path: |
-            MLProject/mlruns
-            MLProject/model
+            MLProject/mlruns/
+            MLProject/model_boosting/
+            **/*.pkl
+            **/*.json
+            **/*.csv
 
+      - name: Complete job
+        run: echo "MLflow retraining pipeline completed successfully!"
