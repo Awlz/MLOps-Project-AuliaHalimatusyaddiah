@@ -1,0 +1,85 @@
+name: CI - MLflow ReTraining Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write   # penting: agar workflow dapat push commit ke repo
+
+jobs:
+  train-and-save:
+    runs-on: ubuntu-latest
+    env:
+      ARTIFACT_BRANCH_PREFIX: artifacts/run-
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: Show python version
+        run: |
+          python --version
+          pip --version
+
+      - name: Install dependencies (pip)
+        working-directory: MLProject
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r <(echo "mlflow\nxgboost\nscikit-learn\npandas\nmatplotlib\nseaborn\ncloudpickle") || true
+          pip install mlflow xgboost scikit-learn pandas matplotlib seaborn cloudpickle
+
+      - name: Prepare mlruns folder
+        working-directory: MLProject
+        run: |
+          mkdir -p mlruns
+
+      - name: Run MLflow Project (local)
+        working-directory: MLProject
+        run: |
+          mlflow run . --env-manager=local
+
+      - name: Zip mlruns artifacts
+        working-directory: MLProject
+        run: |
+          TIMESTAMP=$(date +'%Y%m%d_%H%M%S')
+          ZIP_NAME="mlruns_${TIMESTAMP}.zip"
+          zip -r "$ZIP_NAME" mlruns
+          echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_OUTPUT
+          ls -l
+
+      - name: Add artifacts to repo and push to branch
+        working-directory: MLProject
+        run: |
+          # create a new branch to store artifacts
+          BRANCH_NAME="${ARTIFACT_BRANCH_PREFIX}${GITHUB_RUN_ID}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH_NAME"
+          # create artifact folder in repo root to commit (avoid overwriting source files)
+          mkdir -p artifacts
+          mv "$ZIP_NAME" ../artifacts/
+          # add mlruns raw folder (optional: big) — prefer using zip
+          git add ../artifacts/"$ZIP_NAME"
+          git commit -m "Add mlruns artifact from workflow run $GITHUB_RUN_ID"
+          git push --set-upstream origin "$BRANCH_NAME"
+
+      - name: (Optional) Build & push Docker image to Docker Hub
+        if: env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != ''
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+          IMAGE_NAME="${DOCKERHUB_USERNAME}/mlflow-xgboost:run-${GITHUB_RUN_ID}"
+          docker build -t "$IMAGE_NAME" MLProject
+          docker push "$IMAGE_NAME"
