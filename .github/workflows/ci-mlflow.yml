@@ -3,6 +3,9 @@ name: CI - MLflow ReTraining Pipeline
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write   
+
 jobs:
   mlflow_retrain:
     runs-on: ubuntu-latest
@@ -43,20 +46,25 @@ jobs:
           echo "Starting MLflow retraining..."
           python MLProject/modelling.py
 
-      - name: Install Python dependencies
-        run: |
-          pip install -r requirements.txt || echo "No requirements.txt found"
-
       - name: Upload to GitHub
         run: |
-          echo "Committing MLflow artifacts and model back to repo..."
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          echo "=== Commit and push MLflow artifacts ==="
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          # tambahkan folder hasil run dan model ke commit
-          git add mlruns MLProject/model_xgboost.pkl || true
+          # pastikan semua hasil MLflow dan model ada
+          ls -lah mlruns || echo "No mlruns found"
+          ls -lah MLProject || echo "No MLProject folder found"
+
+          # tambahkan hasil run ke commit
+          git add mlruns || true
+          git add MLProject/model_xgboost.pkl || true
+
+          # commit jika ada perubahan
           git commit -m "Auto update MLflow artifacts and retrained model [skip ci]" || echo "No changes to commit"
-          git push origin main || echo "Nothing to push"
+
+          # push ke branch main
+          git push origin main
 
       - name: Complete job
         run: echo "MLflow retraining pipeline finished successfully."
