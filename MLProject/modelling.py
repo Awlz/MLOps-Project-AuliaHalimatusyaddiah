@@ -39,13 +39,15 @@ model = XGBClassifier(
 # === Jalankan experiment ===
 with mlflow.start_run(run_name="XGBoost_Baseline"):
     mlflow.log_params({
-        "n_estimators": 300,
-        "learning_rate": 0.05,
-        "max_depth": 5,
+        "n_estimators": 100,
+        "learning_rate": 0.1,
+        "max_depth": 4,
         "subsample": 0.8,
         "colsample_bytree": 0.8,
         "reg_lambda": 1.0,
-        "random_state": 42
+        "random_state": 42,
+        eval_metric="logloss",
+        use_label_encoder=False
     })
 
     model.fit(X_train, y_train)
@@ -66,3 +68,4 @@ with mlflow.start_run(run_name="XGBoost_Baseline"):
     print(f"F1-score : {f1:.4f}")
     print("\nClassification Report:\n", classification_report(y_test, y_pred))
     print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+
