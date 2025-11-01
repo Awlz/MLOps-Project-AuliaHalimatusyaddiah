@@ -45,9 +45,7 @@ with mlflow.start_run(run_name="XGBoost_Baseline"):
         "subsample": 0.8,
         "colsample_bytree": 0.8,
         "reg_lambda": 1.0,
-        "random_state": 42,
-        eval_metric="logloss",
-        use_label_encoder=False
+        "random_state": 42
     })
 
     model.fit(X_train, y_train)
