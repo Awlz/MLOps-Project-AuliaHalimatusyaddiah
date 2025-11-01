@@ -13,13 +13,16 @@ jobs:
   mlflow_retrain:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: true
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python 3.12.7
         uses: actions/setup-python@v4
@@ -60,15 +63,15 @@ jobs:
           ls -lah mlruns || echo "No mlruns found"
           ls -lah MLProject || echo "No MLProject folder found"
 
-          # tambahkan hasil run ke commit
           git add mlruns || true
           git add MLProject/model_xgboost.pkl || true
 
-          # commit jika ada perubahan
           git commit -m "Auto update MLflow artifacts and retrained model [skip ci]" || echo "No changes to commit"
 
-          # push ke branch main
-          git push origin HEAD:main
+          # pastikan branch main ter-tracking
+          git branch -M main
+          git pull origin main --rebase
+          git push origin main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
