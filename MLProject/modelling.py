@@ -6,10 +6,10 @@ from xgboost import XGBClassifier
 from sklearn.metrics import accuracy_score, f1_score, classification_report, confusion_matrix
 
 # Baca dataset hasil preprocessing ===
-X_train = pd.read_csv("X_train.csv")
-y_train = pd.read_csv("y_train.csv").squeeze()
-X_test = pd.read_csv("X_test.csv")
-y_test = pd.read_csv("y_test.csv").squeeze()
+X_train = pd.read_csv("MLProject/X_train.csv")
+y_train = pd.read_csv("MLProject/y_train.csv").squeeze()
+X_test = pd.read_csv("MLProject/X_test.csv")
+y_test = pd.read_csv("MLProject/y_test.csv").squeeze()
 
 # Pastikan folder mlruns sudah ada ===
 mlruns_path = os.path.abspath("mlruns")
@@ -66,4 +66,5 @@ with mlflow.start_run(run_name="XGBoost_Baseline"):
     print(f"F1-score : {f1:.4f}")
     print("\nClassification Report:\n", classification_report(y_test, y_pred))
     print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+
 
