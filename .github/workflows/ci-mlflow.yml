@@ -51,21 +51,29 @@ jobs:
           echo "=== Changed files ==="
           git diff --name-only || true
 
-      - name: Commit & Push Artifacts to GitHub
+      - name: Move Artifacts and Push to GitHub
         run: |
+          echo "=== Move artifacts from MLProject to root ==="
+
+          # Pastikan folder hasil ada
+          if [ -d "MLProject/mlruns" ]; then
+            mv MLProject/mlruns ./mlruns
+          fi
+
+          if [ -f "MLProject/model_boosting.pkl" ]; then
+            mv MLProject/model_boosting.pkl ./model_boosting.pkl
+          fi
+
           echo "=== Commit and push MLflow artifacts ==="
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Force add all artifacts and models
           git add -A
           git commit -m "Auto update MLflow artifacts and retrained model [skip ci]" || echo "No changes to commit"
 
-          # Ensure branch main is up to date
           git fetch origin main
           git pull origin main --rebase || echo "No rebase needed"
 
-          # Push updates
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
