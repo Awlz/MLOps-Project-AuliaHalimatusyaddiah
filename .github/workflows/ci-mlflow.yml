@@ -7,9 +7,11 @@ permissions:
   contents: write
 
 jobs:
-  retrain_model:
+  retrain:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    env:
+      MLFLOW_TRACKING_URI: file:./mlruns
+      MLFLOW_EXPERIMENT_NAME: "Default"
 
     steps:
       - name: Checkout repository
