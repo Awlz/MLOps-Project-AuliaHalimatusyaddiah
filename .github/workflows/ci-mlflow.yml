@@ -26,46 +26,51 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install MLflow
+      - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install mlflow==3.5.1
+          pip install mlflow xgboost scikit-learn pandas numpy joblib
 
       - name: Prepare MLflow tracking
         run: |
           mkdir -p mlruns
           echo "MLFLOW_TRACKING_URI=file://$(pwd)/mlruns" >> $GITHUB_ENV
 
-      - name: Run MLflow project retraining
+      # 🔹 Hanya bagian ini yang diubah: jalankan via MLflow Project
+      - name: Run model retraining via MLflow Project
         working-directory: MLProject
         run: |
-          echo "Starting MLflow Project retraining"
+          echo "=== Starting MLflow retraining as MLProject ==="
           mlflow run . --env-manager=local
-          echo "MLflow training complete"
+          echo "=== MLflow Project training complete ==="
           echo "Files generated:"
           ls -R .
 
       - name: Show git status before commit (debug)
         run: |
-          echo "Git status before commit"
+          echo "=== Git status before commit ==="
           git status
-          echo "Changed files"
+          echo "=== Changed files ==="
           git diff --name-only || true
 
       - name: Move Artifacts and Push to GitHub
         run: |
-          echo "Move artifacts from MLProject to root"
+          echo "=== Move artifacts from MLProject to root ==="
 
           if [ -d "MLProject/mlruns" ]; then
             mv MLProject/mlruns ./mlruns
           fi
 
-          echo "Commit and push MLflow artifacts"
+          if [ -f "MLProject/model_boosting.pkl" ]; then
+            mv MLProject/model_boosting.pkl ./model_boosting.pkl
+          fi
+
+          echo "=== Commit and push MLflow artifacts ==="
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
           git add -A
-          git commit -m "Auto update MLflow artifacts and retrained model" || echo "No changes to commit"
+          git commit -m "Auto update MLflow artifacts and retrained model [skip ci]" || echo "No changes to commit"
 
           git fetch origin main
           git pull origin main --rebase || echo "No rebase needed"
