@@ -1,3 +1,4 @@
+import os
 import mlflow
 import xgboost as xgb
 import pandas as pd
@@ -26,4 +27,3 @@ with mlflow.start_run():
     mlflow.xgboost.log_model(model, artifact_path="model")
 
 print("Model retraining completed successfully.")
-
