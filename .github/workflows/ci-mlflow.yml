@@ -9,9 +9,7 @@ permissions:
 jobs:
   retrain_model:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-    permissions:
-      contents: write
+    timeout-minutes: 25
 
     steps:
       - name: Checkout repository
@@ -26,36 +24,29 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install dependencies
+      - name: Install base dependencies
         run: |
           pip install --upgrade pip
-          pip install mlflow xgboost scikit-learn pandas numpy joblib
+          pip install mlflow==3.5.1
 
       - name: Prepare MLflow tracking
         run: |
           mkdir -p mlruns
           echo "MLFLOW_TRACKING_URI=file://$(pwd)/mlruns" >> $GITHUB_ENV
 
-      # 🔹 Hanya bagian ini yang diubah: jalankan via MLflow Project
-      - name: Run model retraining via MLflow Project
+      - name: Run MLflow retraining project
         working-directory: MLProject
         run: |
-          echo "=== Starting MLflow retraining as MLProject ==="
-          mlflow run . --env-manager=local
-          echo "=== MLflow Project training complete ==="
-          echo "Files generated:"
+          echo "Checking MLProject directory structure"
           ls -R .
-
-      - name: Show git status before commit (debug)
-        run: |
-          echo "=== Git status before commit ==="
-          git status
-          echo "=== Changed files ==="
-          git diff --name-only || true
+          echo "Starting MLflow run"
+          mlflow run . --env-manager=local
+          echo "MLflow Project run complete"
+          ls -R .
 
       - name: Move Artifacts and Push to GitHub
         run: |
-          echo "=== Move artifacts from MLProject to root ==="
+          echo "Move artifacts from MLProject to root"
 
           if [ -d "MLProject/mlruns" ]; then
             mv MLProject/mlruns ./mlruns
@@ -65,19 +56,18 @@ jobs:
             mv MLProject/model_boosting.pkl ./model_boosting.pkl
           fi
 
-          echo "=== Commit and push MLflow artifacts ==="
+          echo "Commit and push MLflow artifacts"
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
           git add -A
-          git commit -m "Auto update MLflow artifacts and retrained model [skip ci]" || echo "No changes to commit"
+          git commit -m "Auto update MLflow artifacts and retrained model" || echo "No changes to commit"
 
           git fetch origin main
           git pull origin main --rebase || echo "No rebase needed"
-
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Job complete
-        run: echo "MLflow retraining pipeline finished and artifacts pushed to GitHub!"
+        run: echo "MLflow retraining pipeline finished successfully!"
