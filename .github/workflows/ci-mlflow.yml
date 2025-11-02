@@ -39,8 +39,7 @@ jobs:
       - name: Run model retraining via MLflow Project
         run: |
           echo "Starting MLflow retraining process via MLflow Project"
-          cd MLProject
-          mlflow run . --env-manager=local
+          mlflow run MLProject --env-manager=local
           echo "Training complete"
           echo "Files generated:"
           ls -R .
