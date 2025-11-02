@@ -47,14 +47,6 @@ jobs:
         run: |
           echo "=== Running MLflow retraining ==="
           cd MLProject
-
-          # Buat folder mlruns kalau belum ada
-          mkdir -p ../mlruns
-
-          # Buat experiment default biar ID 0 valid
-          mlflow experiments create --experiment-name "Default" --artifact-location file://$(pwd)/../mlruns || true
-
-          # Jalankan MLproject
           mlflow run . --env-manager local
           echo "=== Training complete ==="
 
