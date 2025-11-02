@@ -1,4 +1,4 @@
-name: CI - MLflow ReTraining Pipeline 
+name: CI - MLflow ReTraining Pipeline
 
 on:
   workflow_dispatch:
@@ -26,25 +26,24 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install dependencies
+      - name: Install MLflow
         run: |
           pip install --upgrade pip
-          pip install mlflow xgboost scikit-learn pandas numpy joblib seaborn matplotlib
+          pip install mlflow==3.5.1
 
       - name: Prepare MLflow tracking
         run: |
           mkdir -p mlruns
           echo "MLFLOW_TRACKING_URI=file://$(pwd)/mlruns" >> $GITHUB_ENV
 
-      - name: Run model retraining via MLflow Project
+      - name: Run MLflow project retraining
+        working-directory: MLProject
         run: |
-          echo "Starting MLflow retraining process via MLflow Project"
-          mlflow run MLProject --env-manager=local
-          echo "Training complete"
+          echo "Starting MLflow Project retraining"
+          mlflow run . --env-manager=local
+          echo "MLflow training complete"
           echo "Files generated:"
           ls -R .
-        env:
-          MLFLOW_TRACKING_URI: ${{ env.MLFLOW_TRACKING_URI }}
 
       - name: Show git status before commit (debug)
         run: |
@@ -57,13 +56,8 @@ jobs:
         run: |
           echo "Move artifacts from MLProject to root"
 
-          # Pastikan folder hasil ada
           if [ -d "MLProject/mlruns" ]; then
             mv MLProject/mlruns ./mlruns
-          fi
-
-          if [ -f "MLProject/model_boosting.pkl" ]; then
-            mv MLProject/model_boosting.pkl ./model_boosting.pkl
           fi
 
           echo "Commit and push MLflow artifacts"
