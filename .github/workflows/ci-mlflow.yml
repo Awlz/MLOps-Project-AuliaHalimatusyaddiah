@@ -10,7 +10,7 @@ jobs:
   retrain:
     runs-on: ubuntu-latest
     env:
-      MLFLOW_TRACKING_URI: file:./mlruns
+      MLFLOW_TRACKING_URI: file:.
       MLFLOW_EXPERIMENT_NAME: "Default"
 
     steps:
