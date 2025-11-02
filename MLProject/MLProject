@@ -1,7 +1,6 @@
-name: "XGBoost_MLflow_Training"
+name: xgboost_retraining
 
 conda_env: conda.yaml
 entry_points:
   main:
-    parameters: {}
     command: "python modelling.py"
