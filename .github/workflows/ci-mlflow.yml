@@ -34,15 +34,14 @@ jobs:
           mkdir -p mlruns
           echo "MLFLOW_TRACKING_URI=file://$(pwd)/mlruns" >> $GITHUB_ENV
 
-      - name: Run MLflow retraining project
+      - name: Run MLflow retraining 
         working-directory: MLProject
         run: |
-          echo "Checking MLProject directory structure"
+          echo "Directory structure"
           ls -R .
-          echo "Starting MLflow run"
-          mlflow run . --env-manager=local
-          echo "MLflow Project run complete"
-          ls -R .
+          echo "Running MLflow project"
+          set -x 
+          mlflow run . --env-manager=local || (echo "MLflow run failed" && exit 1)
 
       - name: Move Artifacts and Push to GitHub
         run: |
