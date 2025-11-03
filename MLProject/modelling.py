@@ -12,17 +12,23 @@ def main():
     parser.add_argument("--experiment-name", type=str, default="Experiment_XGBoost_AutoLog")
     args = parser.parse_args()
 
-    # Load Dataset - relative paths dari lokasi MLProject file
+    # Load Dataset
     X_train = pd.read_csv("X_train.csv")
     y_train = pd.read_csv("y_train.csv").squeeze()
     X_test = pd.read_csv("X_test.csv")
     y_test = pd.read_csv("y_test.csv").squeeze()
 
-    # Konfigurasi MLflow Tracking Lokal
-    mlruns_path = os.path.abspath("../mlruns")  # naik satu level ke root
+    # Konfigurasi MLflow Tracking - menggunakan relative path yang benar
+    # Karena file ini dijalankan dari dalam folder MLProject, mlruns ada di parent directory
+    mlruns_path = os.path.abspath(os.path.join(os.getcwd(), "..", "mlruns"))
     os.makedirs(mlruns_path, exist_ok=True)
-    mlflow.set_tracking_uri("file:///" + mlruns_path.replace("\\", "/"))
+    
+    tracking_uri = "file://" + mlruns_path.replace("\\", "/")
+    mlflow.set_tracking_uri(tracking_uri)
     mlflow.set_experiment(args.experiment_name)
+
+    print(f"MLflow Tracking URI: {tracking_uri}")
+    print(f"Experiment Name: {args.experiment_name}")
 
     # Mengaktifkan Autolog untuk XGBoost
     mlflow.xgboost.autolog(log_input_examples=True, log_model_signatures=True)
@@ -59,4 +65,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
