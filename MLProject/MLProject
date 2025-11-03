@@ -1,7 +1,9 @@
-name: xgboost_retraining
+name: xgboost-classification-project
 
 conda_env: conda.yaml
 
 entry_points:
   main:
-    command: "python modelling.py"
+    parameters:
+      experiment_name: {type: str, default: "Experiment_XGBoost_AutoLog"}
+    command: "python modelling.py --experiment-name {experiment_name}"
