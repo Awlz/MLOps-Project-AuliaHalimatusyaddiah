@@ -18,17 +18,13 @@ def main():
     X_test = pd.read_csv("X_test.csv")
     y_test = pd.read_csv("y_test.csv").squeeze()
 
-    # Konfigurasi MLflow Tracking - menggunakan relative path yang benar
-    # Karena file ini dijalankan dari dalam folder MLProject, mlruns ada di parent directory
-    mlruns_path = os.path.abspath(os.path.join(os.getcwd(), "..", "mlruns"))
-    os.makedirs(mlruns_path, exist_ok=True)
-    
-    tracking_uri = "file://" + mlruns_path.replace("\\", "/")
-    mlflow.set_tracking_uri(tracking_uri)
-    mlflow.set_experiment(args.experiment_name)
-
-    print(f"MLflow Tracking URI: {tracking_uri}")
+    # HILANGKAN setting tracking URI di sini
+    # Biarkan MLflow menggunakan MLFLOW_TRACKING_URI dari environment
+    print(f"Current MLflow Tracking URI: {mlflow.get_tracking_uri()}")
     print(f"Experiment Name: {args.experiment_name}")
+
+    # Set experiment (tanpa set tracking URI)
+    mlflow.set_experiment(args.experiment_name)
 
     # Mengaktifkan Autolog untuk XGBoost
     mlflow.xgboost.autolog(log_input_examples=True, log_model_signatures=True)
