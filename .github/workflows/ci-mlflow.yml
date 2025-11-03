@@ -26,41 +26,67 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install MLflow and dependencies
+      - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install mlflow==3.5.1 xgboost scikit-learn pandas numpy
+          pip install mlflow==3.5.1 xgboost==3.0.0 scikit-learn pandas numpy
 
-      - name: Prepare MLflow environment
+      - name: Setup MLflow environment and create experiment
         run: |
-          # Buat direktori mlruns di root
+          # Buat direktori mlruns
           mkdir -p mlruns
-          # Set MLflow tracking URI
-          echo "MLFLOW_TRACKING_URI=file://$(pwd)/mlruns" >> $GITHUB_ENV
-          export MLFLOW_TRACKING_URI="file://$(pwd)/mlruns"
           
-          # Buat experiment terlebih dahulu
+          # Setup experiment menggunakan Python script
           python -c "
           import mlflow
-          mlflow.set_tracking_uri('file://$(pwd)/mlruns')
-          mlflow.set_experiment('Experiment_XGBoost_AutoLog')
-          print('Experiment setup completed')
+          import os
+          
+          # Set tracking URI - PAKAI ABSOLUTE PATH
+          current_dir = os.getcwd()
+          tracking_uri = f'file://{current_dir}/mlruns'
+          print(f'Setting tracking URI: {tracking_uri}')
+          
+          mlflow.set_tracking_uri(tracking_uri)
+          
+          # Create experiment jika belum ada
+          experiment_name = 'Experiment_XGBoost_AutoLog'
+          try:
+              exp = mlflow.get_experiment_by_name(experiment_name)
+              if exp is None:
+                  exp_id = mlflow.create_experiment(experiment_name)
+                  print(f'Created new experiment: {experiment_name} with ID: {exp_id}')
+              else:
+                  print(f'Experiment already exists: {experiment_name} with ID: {exp.experiment_id}')
+          except Exception as e:
+              print(f'Error setting up experiment: {e}')
           "
 
-      - name: Run MLflow project from MLProject directory
+      - name: Run MLflow project with explicit tracking URI
         run: |
           echo "=== Starting MLflow project execution ==="
+          
+          # Set absolute path untuk tracking URI
+          CURRENT_DIR=$(pwd)
+          export MLFLOW_TRACKING_URI="file://$CURRENT_DIR/mlruns"
+          echo "MLFLOW_TRACKING_URI: $MLFLOW_TRACKING_URI"
+          
+          # Masuk ke directory MLProject dan run
           cd MLProject
-          export MLFLOW_TRACKING_URI="file://$(pwd)/../mlruns"
-          mlflow run . -P experiment_name="Experiment_XGBoost_AutoLog" --env-manager=local
+          mlflow run . \
+            -P experiment_name="Experiment_XGBoost_AutoLog" \
+            --env-manager=local \
+            --experiment-name "Experiment_XGBoost_AutoLog"
+            
           echo "=== MLflow project execution complete ==="
 
-      - name: Show git status before commit (debug)
+      - name: Verify MLflow artifacts
         run: |
-          echo "=== Git status before commit ==="
-          git status
           echo "=== MLflow artifacts generated ==="
-          find . -name "mlruns" -type d | head -5
+          find . -name "mlruns" -type d | head -1
+          if [ -d "mlruns" ]; then
+            echo "MLflow runs directory structure:"
+            find mlruns -type f -name "meta.yaml" | head -5
+          fi
 
       - name: Commit and Push MLflow Artifacts
         run: |
