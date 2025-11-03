@@ -29,17 +29,29 @@ jobs:
       - name: Install MLflow and dependencies
         run: |
           pip install --upgrade pip
-          pip install mlflow==3.5.1
+          pip install mlflow==3.5.1 xgboost scikit-learn pandas numpy
 
-      - name: Prepare MLflow tracking
+      - name: Prepare MLflow environment
         run: |
+          # Buat direktori mlruns di root
           mkdir -p mlruns
+          # Set MLflow tracking URI
           echo "MLFLOW_TRACKING_URI=file://$(pwd)/mlruns" >> $GITHUB_ENV
+          export MLFLOW_TRACKING_URI="file://$(pwd)/mlruns"
+          
+          # Buat experiment terlebih dahulu
+          python -c "
+          import mlflow
+          mlflow.set_tracking_uri('file://$(pwd)/mlruns')
+          mlflow.set_experiment('Experiment_XGBoost_AutoLog')
+          print('Experiment setup completed')
+          "
 
-      - name: Run MLflow project
+      - name: Run MLflow project from MLProject directory
         run: |
           echo "=== Starting MLflow project execution ==="
           cd MLProject
+          export MLFLOW_TRACKING_URI="file://$(pwd)/../mlruns"
           mlflow run . -P experiment_name="Experiment_XGBoost_AutoLog" --env-manager=local
           echo "=== MLflow project execution complete ==="
 
@@ -47,8 +59,8 @@ jobs:
         run: |
           echo "=== Git status before commit ==="
           git status
-          echo "=== Changed files ==="
-          git diff --name-only || true
+          echo "=== MLflow artifacts generated ==="
+          find . -name "mlruns" -type d | head -5
 
       - name: Commit and Push MLflow Artifacts
         run: |
