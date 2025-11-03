@@ -26,23 +26,21 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install dependencies
+      - name: Install MLflow and dependencies
         run: |
           pip install --upgrade pip
-          pip install mlflow xgboost scikit-learn pandas numpy joblib
+          pip install mlflow==3.5.1
 
       - name: Prepare MLflow tracking
         run: |
           mkdir -p mlruns
           echo "MLFLOW_TRACKING_URI=file://$(pwd)/mlruns" >> $GITHUB_ENV
 
-      - name: Run model retraining
+      - name: Run MLflow project
         run: |
-          echo "=== Starting MLflow retraining process ==="
-          python MLProject/modelling.py
-          echo "=== Training complete ==="
-          echo "Files generated:"
-          ls -R .
+          echo "=== Starting MLflow project execution ==="
+          mlflow run . -P experiment_name="Experiment_XGBoost_AutoLog" --env-manager=local
+          echo "=== MLflow project execution complete ==="
 
       - name: Show git status before commit (debug)
         run: |
@@ -51,19 +49,8 @@ jobs:
           echo "=== Changed files ==="
           git diff --name-only || true
 
-      - name: Move Artifacts and Push to GitHub
+      - name: Commit and Push MLflow Artifacts
         run: |
-          echo "=== Move artifacts from MLProject to root ==="
-
-          # Pastikan folder hasil ada
-          if [ -d "MLProject/mlruns" ]; then
-            mv MLProject/mlruns ./mlruns
-          fi
-
-          if [ -f "MLProject/model_boosting.pkl" ]; then
-            mv MLProject/model_boosting.pkl ./model_boosting.pkl
-          fi
-
           echo "=== Commit and push MLflow artifacts ==="
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
