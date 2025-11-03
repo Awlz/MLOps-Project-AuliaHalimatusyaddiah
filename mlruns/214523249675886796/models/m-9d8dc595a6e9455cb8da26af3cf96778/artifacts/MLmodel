@@ -1,0 +1,38 @@
+artifact_path: file:///home/runner/work/MLOps-Project-AuliaHalimatusyaddiah/MLOps-Project-AuliaHalimatusyaddiah/mlruns/214523249675886796/models/m-9d8dc595a6e9455cb8da26af3cf96778/artifacts
+flavors:
+  python_function:
+    data: model.xgb
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.xgboost
+    python_version: 3.12.12
+  xgboost:
+    code: null
+    data: model.xgb
+    model_class: xgboost.sklearn.XGBClassifier
+    model_format: xgb
+    xgb_version: 3.0.0
+is_signature_from_type_hint: false
+mlflow_version: 3.5.1
+model_id: m-9d8dc595a6e9455cb8da26af3cf96778
+model_size_bytes: 488147
+model_uuid: m-9d8dc595a6e9455cb8da26af3cf96778
+prompts: null
+run_id: 1bdb947601ad4d62adbf42533c348db6
+saved_input_example_info:
+  artifact_path: input_example.json
+  pandas_orient: split
+  serving_input_path: serving_input_example.json
+  type: dataframe
+signature:
+  inputs: '[{"type": "double", "name": "gender", "required": true}, {"type": "double",
+    "name": "age", "required": true}, {"type": "double", "name": "hypertension", "required":
+    true}, {"type": "double", "name": "heart_disease", "required": true}, {"type":
+    "double", "name": "smoking_history", "required": true}, {"type": "double", "name":
+    "bmi", "required": true}, {"type": "double", "name": "HbA1c_level", "required":
+    true}, {"type": "double", "name": "blood_glucose_level", "required": true}]'
+  outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "int64", "shape": [-1]}}]'
+  params: null
+type_hint_from_example: false
+utc_time_created: '2025-11-03 03:55:45.463741'

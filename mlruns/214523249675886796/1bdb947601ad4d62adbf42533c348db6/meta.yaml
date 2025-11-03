@@ -1,0 +1,14 @@
+artifact_uri: file:///home/runner/work/MLOps-Project-AuliaHalimatusyaddiah/MLOps-Project-AuliaHalimatusyaddiah/mlruns/214523249675886796/1bdb947601ad4d62adbf42533c348db6/artifacts
+end_time: 1762142148482
+entry_point_name: ''
+experiment_id: '214523249675886796'
+lifecycle_stage: active
+run_id: 1bdb947601ad4d62adbf42533c348db6
+run_name: thundering-jay-277
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1762142140165
+status: 3
+tags: []
+user_id: runner
